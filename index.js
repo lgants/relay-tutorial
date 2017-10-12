@@ -48,6 +48,14 @@ class HackerNewsRoute extends Relay.Route {
 }
 
 class TopItems extends React.Component {
+  _onChange(ev) {
+    let storyType = ev.target.value;
+    this.setState({ storyType });
+    this.props.relay.setVariables({
+      storyType
+    });
+  }
+  
   render() {
     let items = this.props.store.topStories.map(
       (store, idx) => <Item store={store} key={idx} />
@@ -58,14 +66,6 @@ class TopItems extends React.Component {
     // To reduce the perceived lag
     // There are less crude ways of doing this, but this works for now
     let currentStoryType = (this.state && this.state.storyType) || variables.storyType;
-
-    _onChange(ev) {
-      let storyType = ev.target.value;
-      this.setState({ storyType });
-      this.props.relay.setVariables({
-        storyType
-      });
-    }
 
     return <div>
       <select onChange={this._onChange.bind(this)} value={currentStoryType}>
