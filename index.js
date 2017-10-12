@@ -4,7 +4,7 @@ let Relay    = require('react-relay');
 
 class Item extends React.Component {
   render() {
-    let item = this.props.store.item;
+    let item = this.props.store;
 
     return (
       <div>
@@ -21,14 +21,13 @@ class Item extends React.Component {
 Item = Relay.createContainer(Item, {
   fragments: {
     store: () => Relay.QL`
-      fragment on HackerNewsAPI {
-        item(id: 8863) {
-          title,
-          score,
-          url
-          by {
-            id
-          }
+      fragment on HackerNewsItem {
+        id
+        title,
+        score,
+        url
+        by {
+          id
         }
       }
     `,
@@ -48,6 +47,27 @@ class HackerNewsRoute extends Relay.Route {
   };
 }
 
+class TopItems extends React.Component {
+  render() {
+    let items = this.props.store.topStories.map(
+      (store, idx) => <Item store={store} key={idx} />
+    );
+    return <div>
+      { items }
+    </div>;
+  }
+}
+
+TopItems = Relay.createContainer(TopItems, {
+  fragments: {
+    store: () => Relay.QL`
+      fragment on HackerNewsAPI {
+        topStories { ${Item.getFragment('store')} },
+      }
+    `,
+  },
+});
+
 // let item = {
 //   id  : '1337',
 //   url : 'http://google.com',
@@ -64,7 +84,7 @@ Relay.injectNetworkLayer(
 
 let mountNode = document.getElementById('container');
 let rootComponent = <Relay.RootContainer
-  Component={Item}
+  Component={TopItems}
   route={new HackerNewsRoute()} />;
 
 ReactDOM.render(rootComponent, mountNode);
